@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BasketWatch India</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --surface: #111111;
+    --surface2: #1a1a1a;
+    --border: #222222;
+    --accent: #f0e040;
+    --accent2: #ff6b35;
+    --accent3: #4ecdc4;
+    --text: #f0f0f0;
+    --muted: #666666;
+    --up: #ff6b6b;
+    --down: #4ecdc4;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Grain overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.4;
+  }
+
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 32px;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    background: rgba(10,10,10,0.92);
+    backdrop-filter: blur(12px);
+    z-index: 100;
+  }
+
+  .logo {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+  }
+
+  .logo-text {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 20px;
+    letter-spacing: -0.5px;
+    color: var(--text);
+  }
+
+  .logo-text span {
+    color: var(--accent);
+  }
+
+  .logo-badge {
+    font-size: 10px;
+    background: var(--accent);
+    color: #000;
+    padding: 2px 7px;
+    border-radius: 2px;
+    font-weight: 500;
+    letter-spacing: 1px;
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .live-dot {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 1px;
+  }
+
+  .live-dot::before {
+    content: '';
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #4ecdc4;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.8); }
+  }
+
+  .last-update {
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.5px;
+  }
+
+  .main {
+    padding: 32px;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  /* Hero section */
+  .hero {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    margin-bottom: 32px;
+    animation: fadeUp 0.6s ease both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .hero-card {
+    background: var(--surface);
+    padding: 28px 24px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--accent);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s ease;
+  }
+
+  .hero-card:hover::after { transform: scaleX(1); }
+
+  .hero-label {
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .hero-value {
+    font-family: 'Syne', sans-serif;
+    font-size: 40px;
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+
+  .hero-value.up { color: var(--up); }
+  .hero-value.yellow { color: var(--accent); }
+  .hero-value.teal { color: var(--accent3); }
+
+  .hero-sub {
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .hero-sub .tag {
+    display: inline-block;
+    background: rgba(255,107,53,0.15);
+    color: var(--accent2);
+    padding: 2px 6px;
+    font-size: 10px;
+    letter-spacing: 0.5px;
+  }
+
+  /* Section header */
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .section-title span {
+    color: var(--accent);
+  }
+
+  /* Main grid */
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+    animation: fadeUp 0.6s ease 0.1s both;
+  }
+
+  .grid-3 {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+    animation: fadeUp 0.6s ease 0.2s both;
+  }
+
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 24px;
+  }
+
+  /* Chart area */
+  .chart-container {
+    height: 200px;
+    position: relative;
+    margin-top: 16px;
+  }
+
+  svg.chart { width: 100%; height: 100%; }
+
+  .chart-line {
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .chart-area {
+    opacity: 0.08;
+  }
+
+  /* City tabs */
+  .city-tabs {
+    display: flex;
+    gap: 0;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .city-tab {
+    padding: 8px 16px;
+    font-size: 11px;
+    letter-spacing: 1px;
+    cursor: pointer;
+    color: var(--muted);
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: all 0.2s;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .city-tab.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+
+  /* Items table */
+  .items-table { width: 100%; }
+
+  .items-row {
+    display: grid;
+    grid-template-columns: 1fr 80px 80px 60px;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+    transition: background 0.2s;
+    cursor: default;
+  }
+
+  .items-row:hover { background: rgba(255,255,255,0.02); }
+  .items-row:last-child { border-bottom: none; }
+
+  .items-header {
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 4px;
+  }
+
+  .item-name { color: var(--text); }
+  .item-price { color: var(--text); text-align: right; }
+  .item-prev { color: var(--muted); text-align: right; }
+
+  .item-change {
+    text-align: right;
+    font-size: 11px;
+    font-weight: 500;
+  }
+  .item-change.up { color: var(--up); }
+  .item-change.down { color: var(--down); }
+  .item-change.flat { color: var(--muted); }
+
+  /* Divergence panel */
+  .divergence-score {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .div-number {
+    font-family: 'Syne', sans-serif;
+    font-size: 56px;
+    font-weight: 800;
+    color: var(--accent2);
+    line-height: 1;
+  }
+
+  .div-label {
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.6;
+    max-width: 120px;
+  }
+
+  .divergence-bar {
+    margin-bottom: 12px;
+  }
+
+  .div-bar-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    color: var(--muted);
+    margin-bottom: 4px;
+    letter-spacing: 0.5px;
+  }
+
+  .div-bar-track {
+    height: 6px;
+    background: var(--surface2);
+    border-radius: 0;
+    overflow: hidden;
+  }
+
+  .div-bar-fill {
+    height: 100%;
+    border-radius: 0;
+    transition: width 1s ease;
+  }
+
+  /* Mini sparklines */
+  .sparkline-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 16px;
+  }
+
+  .spark-card {
+    background: var(--surface2);
+    padding: 12px;
+    border: 1px solid var(--border);
+  }
+
+  .spark-name {
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    margin-bottom: 2px;
+  }
+
+  .spark-val {
+    font-family: 'Syne', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .spark-val.up { color: var(--up); }
+  .spark-val.down { color: var(--down); }
+
+  svg.sparkline { width: 100%; height: 32px; }
+
+  /* Alert banner */
+  .alert-banner {
+    background: rgba(255,107,53,0.08);
+    border: 1px solid rgba(255,107,53,0.3);
+    border-left: 3px solid var(--accent2);
+    padding: 12px 16px;
+    font-size: 11px;
+    color: var(--text);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    animation: fadeUp 0.6s ease 0.3s both;
+  }
+
+  .alert-icon {
+    color: var(--accent2);
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+
+  .alert-text { line-height: 1.5; }
+  .alert-text strong { color: var(--accent2); }
+
+  /* Footer */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 20px 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 32px;
+  }
+
+  .footer-left {
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  .footer-cities {
+    display: flex;
+    gap: 12px;
+  }
+
+  .city-pill {
+    font-size: 10px;
+    padding: 4px 10px;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    letter-spacing: 1px;
+  }
+
+  .city-pill.active {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  /* Tooltip style label */
+  .vs-label {
+    font-size: 10px;
+    letter-spacing: 1px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .legend {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 8px;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 10px;
+    color: var(--muted);
+  }
+
+  .legend-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-text">Basket<span>Watch</span></div>
+    <div class="logo-badge">INDIA</div>
+  </div>
+  <div class="header-right">
+    <div class="live-dot">LIVE TRACKING</div>
+    <div class="last-update">Last scraped: Today, 08:14 AM</div>
+  </div>
+</header>
+
+<div class="main">
+
+  <!-- Hero stats -->
+  <div class="hero">
+    <div class="hero-card">
+      <div class="hero-label">BasketWatch Inflation (MoM)</div>
+      <div class="hero-value up">+6.4%</div>
+      <div class="hero-sub">Across 20 tracked items · <span class="tag">↑ 1.2% vs last week</span></div>
+    </div>
+    <div class="hero-card">
+      <div class="hero-label">RBI CPI (Official)</div>
+      <div class="hero-value yellow">+4.1%</div>
+      <div class="hero-sub">Latest release · Mar 2025</div>
+    </div>
+    <div class="hero-card">
+      <div class="hero-label">Divergence Gap</div>
+      <div class="hero-value" style="color:var(--accent2)">+2.3pp</div>
+      <div class="hero-sub">BasketWatch tracks higher than CPI</div>
+    </div>
+    <div class="hero-card">
+      <div class="hero-label">Most Volatile Item</div>
+      <div class="hero-value teal">Onion</div>
+      <div class="hero-sub">±18.2% over 8 weeks</div>
+    </div>
+  </div>
+
+  <!-- Alert -->
+  <div class="alert-banner">
+    <div class="alert-icon">⚠</div>
+    <div class="alert-text">
+      <strong>Divergence Alert:</strong> Tomato prices on Blinkit (Mumbai) have risen <strong>+22% in 2 weeks</strong> — CPI data has not yet reflected this spike. Watch for lag.
+    </div>
+  </div>
+
+  <!-- Chart + Divergence -->
+  <div class="grid-3">
+    <div class="panel">
+      <div class="section-header">
+        <div class="section-title">Price Index <span>vs</span> CPI Over Time</div>
+      </div>
+      <div class="city-tabs">
+        <div class="city-tab active">All Cities</div>
+        <div class="city-tab">Mumbai</div>
+        <div class="city-tab">Delhi/NCR</div>
+        <div class="city-tab">Bengaluru</div>
+        <div class="city-tab">Pune</div>
+      </div>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:var(--accent)"></div>BasketWatch Index</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--muted)"></div>RBI CPI</div>
+      </div>
+      <div class="chart-container">
+        <svg class="chart" viewBox="0 0 600 180">
+          <defs>
+            <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#f0e040" stop-opacity="0.3"/>
+              <stop offset="100%" stop-color="#f0e040" stop-opacity="0"/>
+            </linearGradient>
+            <linearGradient id="cpiGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#666" stop-opacity="0.2"/>
+              <stop offset="100%" stop-color="#666" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <!-- Grid lines -->
+          <line x1="0" y1="30" x2="600" y2="30" stroke="#222" stroke-width="1"/>
+          <line x1="0" y1="70" x2="600" y2="70" stroke="#222" stroke-width="1"/>
+          <line x1="0" y1="110" x2="600" y2="110" stroke="#222" stroke-width="1"/>
+          <line x1="0" y1="150" x2="600" y2="150" stroke="#222" stroke-width="1"/>
+          <!-- Labels -->
+          <text x="0" y="28" fill="#444" font-size="9" font-family="DM Mono">8%</text>
+          <text x="0" y="68" fill="#444" font-size="9" font-family="DM Mono">6%</text>
+          <text x="0" y="108" fill="#444" font-size="9" font-family="DM Mono">4%</text>
+          <text x="0" y="148" fill="#444" font-size="9" font-family="DM Mono">2%</text>
+          <!-- X labels -->
+          <text x="60" y="175" fill="#444" font-size="9" font-family="DM Mono">W1</text>
+          <text x="130" y="175" fill="#444" font-size="9" font-family="DM Mono">W2</text>
+          <text x="200" y="175" fill="#444" font-size="9" font-family="DM Mono">W3</text>
+          <text x="270" y="175" fill="#444" font-size="9" font-family="DM Mono">W4</text>
+          <text x="340" y="175" fill="#444" font-size="9" font-family="DM Mono">W5</text>
+          <text x="410" y="175" fill="#444" font-size="9" font-family="DM Mono">W6</text>
+          <text x="480" y="175" fill="#444" font-size="9" font-family="DM Mono">W7</text>
+          <text x="545" y="175" fill="#444" font-size="9" font-family="DM Mono">W8</text>
+
+          <!-- BasketWatch area -->
+          <path d="M70,130 L140,118 L210,105 L280,95 L350,80 L420,62 L490,45 L560,38 L560,160 L70,160 Z"
+                fill="url(#areaGrad)"/>
+          <!-- BasketWatch line -->
+          <path d="M70,130 L140,118 L210,105 L280,95 L350,80 L420,62 L490,45 L560,38"
+                class="chart-line" stroke="#f0e040" stroke-width="2.5"/>
+
+          <!-- CPI area -->
+          <path d="M70,140 L140,135 L210,128 L280,122 L350,118 L420,112 L490,108 L560,105 L560,160 L70,160 Z"
+                fill="url(#cpiGrad)"/>
+          <!-- CPI line -->
+          <path d="M70,140 L140,135 L210,128 L280,122 L350,118 L420,112 L490,108 L560,105"
+                class="chart-line" stroke="#555" stroke-width="1.5" stroke-dasharray="4,3"/>
+
+          <!-- Divergence annotation -->
+          <line x1="560" y1="38" x2="560" y2="105" stroke="rgba(255,107,53,0.5)" stroke-width="1" stroke-dasharray="2,2"/>
+          <text x="564" y="72" fill="var(--accent2)" font-size="9" font-family="DM Mono">2.3pp</text>
+
+          <!-- Dots on BasketWatch line -->
+          <circle cx="70" cy="130" r="3" fill="#f0e040"/>
+          <circle cx="140" cy="118" r="3" fill="#f0e040"/>
+          <circle cx="210" cy="105" r="3" fill="#f0e040"/>
+          <circle cx="280" cy="95" r="3" fill="#f0e040"/>
+          <circle cx="350" cy="80" r="3" fill="#f0e040"/>
+          <circle cx="420" cy="62" r="3" fill="#f0e040"/>
+          <circle cx="490" cy="45" r="3" fill="#f0e040"/>
+          <circle cx="560" cy="38" r="4" fill="#f0e040" stroke="#0a0a0a" stroke-width="2"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Divergence panel -->
+    <div class="panel">
+      <div class="section-title" style="margin-bottom:16px">Divergence <span>Score</span></div>
+      <div class="divergence-score">
+        <div class="div-number">2.3</div>
+        <div class="div-label">percentage points above official CPI this week</div>
+      </div>
+
+      <div class="divergence-bar">
+        <div class="div-bar-label"><span>Vegetables</span><span style="color:var(--up)">+4.1pp</span></div>
+        <div class="div-bar-track"><div class="div-bar-fill" style="width:82%;background:var(--up)"></div></div>
+      </div>
+      <div class="divergence-bar">
+        <div class="div-bar-label"><span>Cooking Oil</span><span style="color:var(--up)">+3.2pp</span></div>
+        <div class="div-bar-track"><div class="div-bar-fill" style="width:64%;background:var(--up)"></div></div>
+      </div>
+      <div class="divergence-bar">
+        <div class="div-bar-label"><span>Pulses (Dal)</span><span style="color:var(--accent)">+1.8pp</span></div>
+        <div class="div-bar-track"><div class="div-bar-fill" style="width:36%;background:var(--accent)"></div></div>
+      </div>
+      <div class="divergence-bar">
+        <div class="div-bar-label"><span>Dairy</span><span style="color:var(--accent)">+0.9pp</span></div>
+        <div class="div-bar-track"><div class="div-bar-fill" style="width:18%;background:var(--accent)"></div></div>
+      </div>
+      <div class="divergence-bar">
+        <div class="div-bar-label"><span>Grains (Atta)</span><span style="color:var(--down)">−0.3pp</span></div>
+        <div class="div-bar-track"><div class="div-bar-fill" style="width:6%;background:var(--down)"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Items + Sparklines -->
+  <div class="grid-2">
+    <div class="panel">
+      <div class="section-header">
+        <div class="section-title">Weekly Price <span>Movement</span></div>
+        <div style="font-size:10px;color:var(--muted)">Mumbai · Blinkit</div>
+      </div>
+      <div class="items-table">
+        <div class="items-row items-header">
+          <div>ITEM</div>
+          <div style="text-align:right">NOW</div>
+          <div style="text-align:right">LAST WK</div>
+          <div style="text-align:right">CHG</div>
+        </div>
+        <div class="items-row">
+          <div class="item-name">Onion (1kg)</div>
+          <div class="item-price">₹58</div>
+          <div class="item-prev">₹49</div>
+          <div class="item-change up">+18.4%</div>
+        </div>
+        <div class="items-row">
+          <div class="item-name">Tomato (1kg)</div>
+          <div class="item-price">₹72</div>
+          <div class="item-prev">₹61</div>
+          <div class="item-change up">+18.0%</div>
+        </div>
+        <div class="items-row">
+          <div class="item-name">Sunflower Oil (1L)</div>
+          <div class="item-price">₹142</div>
+          <div class="item-prev">₹134</div>
+          <div class="item-change up">+6.0%</div>
+        </div>
+        <div class="items-row">
+          <div class="item-name">Toor Dal (1kg)</div>
+          <div class="item-price">₹168</div>
+          <div class="item-prev">₹160</div>
+          <div class="item-change up">+5.0%</div>
+        </div>
+        <div class="items-row">
+          <div class="item-name">Atta (5kg)</div>
+          <div class="item-price">₹245</div>
+          <div class="item-prev">₹248</div>
+          <div class="item-change down">−1.2%</div>
+        </div>
+        <div class="items-row">
+          <div class="item-name">Eggs (12)</div>
+          <div class="item-price">₹88</div>
+          <div class="item-prev">₹88</div>
+          <div class="item-change flat">0.0%</div>
+        </div>
+        <div class="items-row">
+          <div class="item-name">Milk (1L)</div>
+          <div class="item-price">₹68</div>
+          <div class="item-prev">₹66</div>
+          <div class="item-change up">+3.0%</div>
+        </div>
+        <div class="items-row">
+          <div class="item-name">Potato (1kg)</div>
+          <div class="item-price">₹32</div>
+          <div class="item-prev">₹35</div>
+          <div class="item-change down">−8.6%</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="section-header">
+        <div class="section-title">City <span>Comparison</span></div>
+        <div style="font-size:10px;color:var(--muted)">Basket index MoM</div>
+      </div>
+      <div class="sparkline-grid">
+        <div class="spark-card">
+          <div class="spark-name">MUMBAI</div>
+          <div class="spark-val up">+7.1%</div>
+          <svg class="sparkline" viewBox="0 0 100 32">
+            <polyline points="0,28 14,24 28,20 42,18 56,14 70,10 84,7 100,4"
+              fill="none" stroke="var(--up)" stroke-width="1.5"/>
+          </svg>
+        </div>
+        <div class="spark-card">
+          <div class="spark-name">DELHI/NCR</div>
+          <div class="spark-val up">+6.8%</div>
+          <svg class="sparkline" viewBox="0 0 100 32">
+            <polyline points="0,26 14,22 28,20 42,16 56,18 70,12 84,9 100,6"
+              fill="none" stroke="var(--up)" stroke-width="1.5"/>
+          </svg>
+        </div>
+        <div class="spark-card">
+          <div class="spark-name">BENGALURU</div>
+          <div class="spark-val up">+5.9%</div>
+          <svg class="sparkline" viewBox="0 0 100 32">
+            <polyline points="0,28 14,26 28,22 42,20 56,16 70,14 84,12 100,9"
+              fill="none" stroke="var(--accent)" stroke-width="1.5"/>
+          </svg>
+        </div>
+        <div class="spark-card">
+          <div class="spark-name">PUNE</div>
+          <div class="spark-val down">+4.2%</div>
+          <svg class="sparkline" viewBox="0 0 100 32">
+            <polyline points="0,26 14,24 28,22 42,20 56,19 70,17 84,16 100,14"
+              fill="none" stroke="var(--down)" stroke-width="1.5"/>
+          </svg>
+        </div>
+      </div>
+
+      <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border)">
+        <div class="section-title" style="margin-bottom:12px">Data <span>Sources</span></div>
+        <div style="font-size:11px;color:var(--muted);line-height:2">
+          <div>● Blinkit &amp; Zepto — auto-scraped weekly</div>
+          <div>● RBI CPI — official monthly release</div>
+          <div>● Manual backup — Google Sheets</div>
+          <div style="margin-top:8px;color:#444">Tracking since: Jan 2025 · 8 weeks of data</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <div class="footer-left">
+    BasketWatch India · Independent Price Tracking Project<br>
+    <span style="color:#333">Not affiliated with RBI or any government body</span>
+  </div>
+  <div class="footer-cities">
+    <div class="city-pill active">MUM</div>
+    <div class="city-pill active">DEL</div>
+    <div class="city-pill active">BLR</div>
+    <div class="city-pill active">PUN</div>
+  </div>
+</footer>
+
+</body>
+</html>
