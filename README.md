@@ -3,7 +3,7 @@
 
 ## 🌐 Preview
 
-👉 https://basketwatchai.netlify.app
+👉 https://basketwatch.netlify.app
 
 ---
 
